@@ -1,0 +1,326 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Dashboard Perso — Démo · Ewann Oumarkatar</title>
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<!-- ───────────────────────── ÉCRAN DE CONNEXION ───────────────────────── -->
+<div id="login" class="login-screen" style="min-height:100vh;display:grid;place-items:center;position:relative;z-index:1">
+  <div class="card" style="width:100%;max-width:340px;padding:30px">
+    <div style="display:flex;flex-direction:column;align-items:center;gap:12px;margin-bottom:22px">
+      <div style="width:52px;height:52px;border-radius:15px;background:rgba(139,92,246,.12);border:1px solid rgba(139,92,246,.3);display:grid;place-items:center;font-size:24px;box-shadow:0 0 26px rgba(139,92,246,.28)">🧭</div>
+      <div style="text-align:center">
+        <div style="font-weight:700;font-size:19px;letter-spacing:-.4px">Dashboard Perso</div>
+        <div class="muted" style="margin-top:4px">Accès privé · démo</div>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <input id="lg-user" placeholder="Identifiant" autocomplete="username" />
+      <input id="lg-pwd" type="password" placeholder="Mot de passe" autocomplete="current-password" />
+      <div id="lg-err" class="muted" style="color:#f87171;text-align:center"></div>
+      <button class="btn" id="lg-btn" style="padding:11px;font-weight:600;background:linear-gradient(135deg,#8B5CF6,#3B82F6);border:none;color:#fff">Entrer</button>
+      <p class="muted" style="text-align:center;line-height:1.5">Démo — clique simplement sur <b>Entrer</b>, aucune donnée n'est envoyée.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ───────────────────────── APPLICATION ───────────────────────── -->
+<div class="shell hide" id="app">
+
+  <!-- Sidebar desktop -->
+  <nav class="side">
+    <div class="side-title">Dashboard</div>
+    <button class="navlink on" data-view="accueil"><span class="ic">🏠</span>Accueil</button>
+    <button class="navlink" data-view="calendrier"><span class="ic">📅</span>Calendrier</button>
+    <button class="navlink" data-view="sante"><span class="ic">💪</span>Santé</button>
+    <button class="navlink" data-view="etudes"><span class="ic">📚</span>Études</button>
+    <button class="navlink" id="open-settings"><span class="ic">⚙️</span>Réglages</button>
+  </nav>
+
+  <!-- Header -->
+  <header class="hdr">
+    <div class="greet">Salut Ewann</div>
+    <div class="acts">
+      <button class="iconbtn" id="open-chat-top" title="Ouvrir le majordome">✦</button>
+      <button class="iconbtn" id="open-settings-top" title="Paramètres">⚙️</button>
+    </div>
+  </header>
+
+  <main class="main">
+
+    <!-- ══════════════════ VUE ACCUEIL ══════════════════ -->
+    <section class="view on" id="view-accueil">
+      <h1 style="font-size:23px;font-weight:700;letter-spacing:-.4px" id="greeting">Bonjour, Ewann 👋</h1>
+      <p class="muted" style="text-transform:capitalize;margin-top:3px" id="today-label"></p>
+
+      <!-- Countdowns -->
+      <div id="countdowns" style="margin-top:9px"></div>
+
+      <!-- Agenda + Todos -->
+      <div class="grid2" style="margin-bottom:16px">
+        <div class="card" style="margin:0">
+          <div class="rowline"><h2 style="margin:0">📅 Aujourd'hui</h2>
+            <button class="xbtn" style="font-size:10px;color:var(--muted)" onclick="go('calendrier')">→</button></div>
+          <div id="today-events"></div>
+        </div>
+        <div class="card" style="margin:0">
+          <h2>✅ À faire</h2>
+          <div id="todos-list" style="display:flex;flex-direction:column;gap:6px;max-height:150px;overflow-y:auto;margin-bottom:9px"></div>
+          <div style="display:flex;gap:6px">
+            <input id="todo-input" placeholder="Ajouter…" style="font-size:11px;padding:7px 10px" />
+            <button class="btn violet sm" onclick="addTodo()">+</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Upcoming -->
+      <div class="card" id="upcoming-card">
+        <h2>📆 À venir</h2>
+        <div id="upcoming"></div>
+      </div>
+
+      <!-- Santé snapshot -->
+      <div class="rowline"><h2 style="font-size:13.5px;font-weight:600;margin:0">💪 Santé du jour</h2>
+        <button class="xbtn" style="font-size:10px;color:var(--muted)" onclick="go('sante')">Voir détails →</button></div>
+      <div class="grid2" style="margin-bottom:16px">
+        <div class="card" style="margin:0;display:flex;flex-direction:column;gap:3px">
+          <span style="font-size:16px">🏋️</span><span class="muted">Streak</span>
+          <span style="font-size:14px;font-weight:600">12 j</span><span class="muted" style="font-size:10px">gym</span>
+        </div>
+        <div class="card" style="margin:0">
+          <div id="macro-ring-home"></div>
+        </div>
+      </div>
+
+      <!-- Actions rapides -->
+      <h2 style="font-size:13.5px;font-weight:600;margin-bottom:10px">⚡ Actions rapides</h2>
+      <div class="grid2">
+        <button class="btn" style="display:flex;align-items:center;gap:8px;text-align:left;padding:12px" onclick="go('sante')"><span style="font-size:16px">🌙</span>Log nuit</button>
+        <button class="btn" style="display:flex;align-items:center;gap:8px;text-align:left;padding:12px" onclick="go('sante')"><span style="font-size:16px">🏋️</span>Log séance</button>
+        <button class="btn" style="display:flex;align-items:center;gap:8px;text-align:left;padding:12px" onclick="go('sante')"><span style="font-size:16px">🥗</span>Log repas</button>
+        <button class="btn" style="display:flex;align-items:center;gap:8px;text-align:left;padding:12px" onclick="openChat()"><span style="font-size:16px">✦</span>Majordome</button>
+      </div>
+    </section>
+
+    <!-- ══════════════════ VUE CALENDRIER ══════════════════ -->
+    <section class="view" id="view-calendrier">
+      <div class="rowline" style="justify-content:flex-end">
+        <div class="tabs" style="margin:0">
+          <button class="on" data-calview="week">Semaine</button>
+          <button data-calview="month">Mois</button>
+        </div>
+      </div>
+      <div class="card" style="padding:14px">
+        <div class="rowline">
+          <button class="btn sm" id="cal-prev">‹</button>
+          <span id="cal-title" style="font-weight:700;font-size:15px"></span>
+          <button class="btn sm" id="cal-next">›</button>
+        </div>
+        <div id="cal-week" class="weekgrid"></div>
+        <div id="cal-month" class="hide">
+          <div class="monthgrid" id="cal-month-head"></div>
+          <div class="monthgrid" id="cal-month-body" style="margin-top:4px"></div>
+        </div>
+      </div>
+      <div class="card">
+        <h2>✅ À faire</h2>
+        <div style="display:flex;gap:8px;margin-bottom:11px">
+          <input id="todo-input-cal" placeholder="Ajouter un truc…" style="font-size:12px" />
+          <button class="btn violet" onclick="addTodo('todo-input-cal')">+</button>
+        </div>
+        <div id="todos-list-cal" style="display:flex;flex-direction:column;gap:7px"></div>
+      </div>
+      <p class="note">Démo statique — agenda et tâches fictifs, entièrement cliquables.<br>App réelle : sync CalDAV / Apple Calendar, création d'événements, rappels.</p>
+    </section>
+
+    <!-- ══════════════════ VUE SANTÉ ══════════════════ -->
+    <section class="view" id="view-sante">
+      <div class="snap">
+        <div class="m"><span class="i">⚖️</span><span class="l">Poids</span><span class="v" id="snap-weight">72,4 kg</span></div>
+        <div class="m"><span class="i">🏋️</span><span class="l">Streak</span><span class="v">12 j</span></div>
+        <div class="m"><span class="i">🔥</span><span class="l">Kcal</span><span class="v" id="snap-kcal">2 460 / 2 800</span></div>
+      </div>
+
+      <!-- Workout -->
+      <div class="card">
+        <div class="rowline"><h2 style="margin:0">💪 Workout</h2>
+          <button class="btn violet sm" onclick="document.getElementById('wk-form').classList.toggle('hide')">+ Log séance</button></div>
+        <div id="wk-form" class="bright hide" style="margin-bottom:11px;display:flex;flex-direction:column;gap:7px">
+          <div class="grid4">
+            <div><label class="lbl">Date</label><input type="date" id="wk-date"></div>
+            <div><label class="lbl">Durée (min)</label><input type="number" id="wk-dur" placeholder="60"></div>
+            <div><label class="lbl">Type</label><select id="wk-type"><option>Push</option><option>Pull</option><option>Legs</option><option>Full body</option></select></div>
+            <div><label class="lbl">Affluence</label><select id="wk-crowd"><option>faible</option><option>moyenne</option><option>forte</option></select></div>
+          </div>
+          <button class="btn violet" onclick="addSession()">Enregistrer la séance</button>
+        </div>
+        <div class="list" id="wk-list"></div>
+        <div class="wk" id="wk-chart"></div>
+        <div class="wk-axis"><div>S-3</div><div>S-2</div><div>S-1</div><div>Cette sem.</div></div>
+        <p class="muted" style="margin-top:8px">Volume 4 semaines (kg) par groupe musculaire</p>
+      </div>
+
+      <!-- Sommeil -->
+      <div class="card">
+        <h2>🌙 Sommeil</h2>
+        <div class="score">
+          <svg width="80" height="80" viewBox="0 0 80 80">
+            <circle cx="40" cy="40" r="31.5" fill="none" stroke="rgba(255,255,255,0.04)" stroke-width="13"/>
+            <circle id="sleep-arc" cx="40" cy="40" r="31.5" fill="none" stroke="#34d399" stroke-width="13" stroke-linecap="round"
+                    stroke-dasharray="198" stroke-dashoffset="33" transform="rotate(-90 40 40)"/>
+            <text id="sleep-score" x="40" y="38" text-anchor="middle" fill="#34d399" font-size="15" font-weight="700">87</text>
+            <text x="40" y="50" text-anchor="middle" fill="#6E6E80" font-size="8">/ 100</text>
+          </svg>
+          <div class="metrics">
+            <span style="font-size:12px;font-weight:600;color:#34d399;margin-bottom:2px" id="sleep-label">Excellent</span>
+            <span class="mr"><span class="dot" style="background:#60a5fa"></span>Sommeil&nbsp;: <b id="sleep-dur">7h48</b></span>
+            <span class="mr"><span class="dot" style="background:#f87171"></span>FC moy&nbsp;: <b>52 bpm</b></span>
+            <span class="mr"><span class="dot" style="background:#34d399"></span>HRV&nbsp;: <b>74 ms</b></span>
+          </div>
+        </div>
+        <div class="bright" style="margin-top:12px;display:flex;flex-direction:column;gap:9px">
+          <div class="grid4">
+            <div><label class="lbl">Date</label><input type="date" id="sl-date"></div>
+            <div><label class="lbl">Coucher</label><input type="time" id="sl-bed" value="23:00"></div>
+            <div><label class="lbl">Réveil</label><input type="time" id="sl-wake" value="07:00"></div>
+            <div><label class="lbl">Qualité</label><input type="range" id="sl-q" min="1" max="5" value="4" oninput="document.getElementById('sl-qv').textContent=this.value+'/5'"><span class="muted" id="sl-qv">4/5</span></div>
+          </div>
+          <button class="btn blue" onclick="saveSleep()">Log nuit</button>
+        </div>
+        <p class="muted" style="margin:14px 0 6px">7 dernières nuits</p>
+        <svg class="spark" id="sleep-chart" viewBox="0 0 340 110" preserveAspectRatio="none"></svg>
+      </div>
+
+      <!-- Nutrition -->
+      <div class="card">
+        <div class="rowline"><h2 style="margin:0">🥗 Nutrition</h2><span class="muted" id="nutri-date">Aujourd'hui</span></div>
+        <div class="bright" style="margin-bottom:13px" id="macros"></div>
+
+        <p class="muted" style="margin-bottom:8px">Repas du jour</p>
+        <div class="list" style="margin-bottom:12px" id="meals-list"></div>
+
+        <div class="bright" style="margin-bottom:13px;display:flex;flex-direction:column;gap:8px">
+          <div style="display:flex;gap:8px">
+            <input id="meal-desc" placeholder="Décrire un repas… (ex: 150g riz + 200g poulet)" style="font-size:11.5px" />
+            <button class="btn lime sm" onclick="describeMeal()" title="Analyser">✦</button>
+          </div>
+          <div style="display:flex;gap:8px">
+            <input id="meal-name" placeholder="Nom du repas" style="font-size:11.5px" />
+            <input id="meal-cal" type="number" placeholder="kcal" style="max-width:82px" />
+            <button class="btn lime sm" onclick="addMeal()">+ Ajouter</button>
+          </div>
+          <p class="muted" style="font-size:10px">✦ = estimation automatique (nom + macros) par l'IA dans la vraie app · 📷 photo & code-barre également disponibles</p>
+        </div>
+
+        <div class="bright">
+          <p class="muted" style="margin-bottom:10px">Répartition des macros (total du jour)</p>
+          <div class="donut-wrap">
+            <svg width="80" height="80" viewBox="0 0 80 80" id="macro-donut"></svg>
+            <div class="legend" id="macro-legend"></div>
+          </div>
+        </div>
+
+        <p class="muted" style="margin:16px 0 6px">⚖️ Poids — 30 jours</p>
+        <svg class="spark" id="weight-chart" viewBox="0 0 340 110" preserveAspectRatio="none"></svg>
+      </div>
+
+      <p class="note">Démo statique — données fictives.<br>Application réelle : React + Node/Express + SQLite, coachs IA (gym, sommeil, nutrition, études).</p>
+    </section>
+
+    <!-- ══════════════════ VUE ÉTUDES ══════════════════ -->
+    <section class="view" id="view-etudes">
+      <h1 style="font-size:23px;font-weight:700;letter-spacing:-.4px;margin-bottom:14px">📚 Études</h1>
+      <div class="card">
+        <h2>⏱ Pomodoro</h2>
+        <div style="display:flex;align-items:center;gap:16px">
+          <div id="pomo" style="font-family:'JetBrains Mono',monospace;font-size:38px;font-weight:700;letter-spacing:-1px">25:00</div>
+          <div style="display:flex;gap:7px">
+            <button class="btn violet" id="pomo-start">Démarrer</button>
+            <button class="btn sm" id="pomo-reset">Reset</button>
+          </div>
+        </div>
+        <p class="muted" style="margin-top:10px">Plan : 4 sessions de 25 min, pause 5 min. Session en cours : <b>Maths — dérivées</b></p>
+      </div>
+      <div class="card">
+        <h2>🗓 Plan de révisions</h2>
+        <div class="list">
+          <div class="rowitem"><div><span class="nm">Mathématiques</span><span class="kl">Chapitre 4 · dérivées & intégrales</span></div><span class="rt">J-2</span></div>
+          <div class="rowitem"><div><span class="nm">Économie</span><span class="kl">Fiche de synthèse micro</span></div><span class="rt">J-4</span></div>
+          <div class="rowitem"><div><span class="nm">Anglais</span><span class="kl">Oral · présentation 5 min</span></div><span class="rt">J-6</span></div>
+        </div>
+      </div>
+      <div class="card">
+        <h2>🎓 Countdown examens</h2>
+        <p style="font-family:'JetBrains Mono',monospace;font-size:26px;font-weight:700;color:var(--lime)">J-12</p>
+        <p class="muted" style="margin-top:5px">Partiel semestre 1 — 24 octobre</p>
+      </div>
+      <p class="note">Démo statique.<br>App réelle : Pomodoro fonctionnel, plan de révisions, countdown examens, coach études IA.</p>
+    </section>
+
+    <!-- ══════════════════ VUE RÉGLAGES ══════════════════ -->
+    <section class="view" id="view-settings">
+      <h1 style="font-size:23px;font-weight:700;letter-spacing:-.4px;margin-bottom:14px">⚙️ Réglages</h1>
+      <div class="card">
+        <div class="rowline"><h2 style="margin:0">Sync Apple Calendar</h2><span class="badge lime">Configuré ✓</span></div>
+        <p class="muted" style="margin-bottom:11px">Synchronisation CalDAV via Apple ID + mot de passe d'application.</p>
+        <div style="display:flex;flex-direction:column;gap:9px">
+          <div><label class="lbl">Apple ID</label><input placeholder="you@icloud.com" disabled value="e•••••@icloud.com" /></div>
+          <div><label class="lbl">App-Specific Password</label><input type="password" disabled value="xxxxxxxxxxxxxxxx" /></div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn" disabled>Test sync</button><button class="btn" style="border-color:rgba(248,113,113,.3);color:#f87171">Supprimer</button></div>
+        </div>
+      </div>
+      <div class="card">
+        <h2>Objectifs nutrition</h2>
+        <div class="bright" style="margin-bottom:12px">
+          <p class="muted">Maintien estimé</p>
+          <p style="font-size:13.5px;font-weight:600;margin-top:2px">2 795 kcal/j</p>
+          <p class="muted" style="margin-top:9px">Objectif bulk (+450 kcal)</p>
+          <p style="font-size:13.5px;font-weight:600;margin-top:2px">3 245 kcal · 179 g P · 373 g G · 90 g L</p>
+        </div>
+        <div style="margin-bottom:11px"><label class="lbl">Activité</label>
+          <select><option>Modérément actif (3-5 séances/sem)</option><option>Sédentaire</option><option>Légèrement actif</option><option>Très actif</option></select></div>
+        <p class="muted" style="margin-bottom:11px">Les cibles sont calculées à partir des mensurations renseignées dans l'application réelle (poids, taille, âge, niveau d'activité).</p>
+        <button class="btn violet">Sauvegarder</button>
+      </div>
+      <div class="card">
+        <div class="rowline"><h2 style="margin:0">Compte</h2><button class="btn sm" onclick="logout()">Se déconnecter</button></div>
+        <p class="muted">Utilisateur</p><p style="font-size:13.5px;font-weight:500">Ewann</p>
+      </div>
+    </section>
+  </main>
+
+  <!-- Bottom nav mobile -->
+  <nav class="bottomnav">
+    <div class="inner">
+      <button class="tab on" data-view="accueil"><span class="ic">🏠</span><span class="lb">Accueil</span></button>
+      <button class="tab" data-view="calendrier"><span class="ic">📅</span><span class="lb">Calendar</span></button>
+      <button class="tab" data-view="sante"><span class="ic">💪</span><span class="lb">Santé</span></button>
+      <button class="tab" data-view="etudes"><span class="ic">📚</span><span class="lb">Études</span></button>
+    </div>
+  </nav>
+</div>
+
+<!-- ───────────────────────── MAJORDOME (CHAT IA) ───────────────────────── -->
+<div class="backdrop" id="chat-backdrop" onclick="closeChat()"></div>
+<aside class="chatpanel" id="chatpanel">
+  <div class="chdr">
+    <span class="t">✦ Majordome</span>
+    <button class="xbtn" onclick="closeChat()">✕</button>
+  </div>
+  <div class="chatbody" id="chat-body">
+    <p class="muted" style="text-align:center;margin-top:20px">Bonjour Ewann. Comment je peux t'aider ?</p>
+  </div>
+  <div class="quickchips" id="chat-chips"></div>
+  <div class="chatfoot">
+    <textarea id="chat-input" rows="2" placeholder="Message…"></textarea>
+    <button class="sendbtn" id="chat-send">→</button>
+  </div>
+</aside>
+
+<script src="app.js"></script>
+</body>
+</html>

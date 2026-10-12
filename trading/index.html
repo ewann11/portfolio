@@ -1,0 +1,688 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Dashboard Gains Trading — Démo · Ewann Oumarkatar</title>
+<style>
+@import url("https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=Sora:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap");
+:root{
+  --bg:#07070b; --text:#ECECF2; --muted:#6E6E80; --line:rgba(255,255,255,0.07);
+  --glass:rgba(255,255,255,0.025); --glass2:rgba(255,255,255,0.05);
+  --green:#14F195; --red:#FF5C72; --purple:#9945FF;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{min-height:100%}
+body{color:var(--text);font-family:'Sora',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+/* ---------- Login ---------- */
+.login{min-height:100vh;display:flex;align-items:center;justify-content:center;
+  background:radial-gradient(900px 500px at 70% 10%,rgba(153,69,255,0.15),transparent 60%),
+             radial-gradient(700px 400px at 10% 90%,rgba(20,241,149,0.1),transparent 55%),#07070b}
+.login-card{width:100%;max-width:360px;padding:40px;background:rgba(255,255,255,0.025);
+  border:1px solid rgba(255,255,255,0.07);border-radius:24px;backdrop-filter:blur(12px);animation:fade .45s ease}
+@keyframes fade{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+@keyframes shake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-8px)}40%,80%{transform:translateX(8px)}}
+.login-logo{width:56px;height:56px;border-radius:16px;background:rgba(153,69,255,0.12);border:1px solid rgba(153,69,255,0.3);
+  display:grid;place-items:center;box-shadow:0 0 32px rgba(153,69,255,0.3);font-size:26px;font-weight:900;color:var(--purple)}
+.linput{width:100%;background:rgba(0,0,0,0.4);border:1px solid rgba(255,255,255,0.08);color:var(--text);
+  padding:13px 16px;border-radius:12px;font-family:'JetBrains Mono',monospace;font-size:15px;outline:none;transition:.15s}
+.linput:focus{border-color:rgba(153,69,255,0.7);box-shadow:0 0 0 3px rgba(153,69,255,0.15)}
+.lbtn{border:none;cursor:pointer;padding:13px;border-radius:12px;font-family:'Sora',sans-serif;font-weight:600;font-size:14px;
+  color:#07070b;background:linear-gradient(135deg,#9945FF,#14F195);box-shadow:0 6px 24px rgba(20,241,149,0.2);transition:.15s}
+.lbtn:hover{transform:translateY(-1px);filter:brightness(1.08)}
+
+/* ---------- App shell ---------- */
+.app{display:none;min-height:100vh;padding:26px 20px 44px;position:relative;overflow:hidden;
+  background:radial-gradient(1200px 600px at 85% -10%,rgba(153,69,255,0.13),transparent 60%),
+             radial-gradient(900px 500px at 0% 110%,rgba(20,241,149,0.09),transparent 55%),var(--bg)}
+.app.on{display:block}
+.app::before{content:"";position:absolute;inset:0;pointer-events:none;z-index:0;
+  background-image:linear-gradient(rgba(255,255,255,0.025) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.025) 1px,transparent 1px);
+  background-size:46px 46px;mask-image:radial-gradient(ellipse 90% 70% at 50% 30%,#000 30%,transparent 75%);
+  -webkit-mask-image:radial-gradient(ellipse 90% 70% at 50% 30%,#000 30%,transparent 75%)}
+.wrap{max-width:920px;margin:0 auto;position:relative;z-index:1}
+
+.head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:18px}
+.brand{display:flex;align-items:center;gap:13px}
+.logo{width:42px;height:42px;border-radius:11px;flex:none;background:rgba(153,69,255,0.12);border:1px solid rgba(153,69,255,0.3);
+  display:grid;place-items:center;box-shadow:0 0 26px rgba(153,69,255,0.35);font-size:22px;font-weight:900;color:var(--purple)}
+h1{font-family:'Syne';font-weight:800;font-size:26px;letter-spacing:-0.5px;line-height:1}
+.sub{color:var(--muted);font-size:12.5px;margin-top:6px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.live{display:inline-flex;align-items:center;gap:6px;cursor:pointer;font-family:'JetBrains Mono';font-size:11.5px;color:var(--text);
+  border:1px solid var(--line);padding:3px 9px;border-radius:999px;transition:.15s}
+.live:hover{border-color:rgba(20,241,149,0.5)}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+.ago{color:var(--muted)}
+.balance{text-align:right}
+.balance .lbl{color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:2px}
+.balance .big{font-family:'JetBrains Mono';font-weight:700;font-size:38px;line-height:1.05;letter-spacing:-1px;
+  background:linear-gradient(120deg,#fff,#cfc9e6);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.balance .big small{font-size:15px;color:var(--muted);-webkit-text-fill-color:var(--muted);margin-left:6px}
+.balance .usd{font-family:'JetBrains Mono';font-size:14px;color:var(--muted);margin-top:2px}
+.day-chip{display:inline-flex;align-items:center;gap:5px;font-family:'JetBrains Mono';font-size:12.5px;margin-top:5px;font-weight:500}
+
+.card{background:var(--glass);border:1px solid var(--line);border-radius:18px;backdrop-filter:blur(8px)}
+.side-panel{padding:18px}
+.side-panel h3{font-family:'Syne';font-weight:700;font-size:15px;margin-bottom:14px}
+.field{display:flex;flex-direction:column;gap:6px}
+.field label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:1.4px;padding-left:2px}
+input,select{background:rgba(0,0,0,0.35);border:1px solid var(--line);color:var(--text);padding:12px 14px;border-radius:12px;
+  font-family:'JetBrains Mono';font-size:15px;font-weight:500;outline:none;width:100%;transition:.15s}
+input:focus,select:focus{border-color:rgba(153,69,255,0.7);box-shadow:0 0 0 3px rgba(153,69,255,0.15)}
+input[type=date]{color-scheme:dark}select{color-scheme:dark;cursor:pointer}
+.btn{border:none;cursor:pointer;padding:12px 22px;border-radius:12px;font-family:'Sora';font-weight:600;font-size:14px;color:#07070b;
+  white-space:nowrap;background:linear-gradient(135deg,var(--purple),var(--green));box-shadow:0 6px 22px rgba(20,241,149,0.22);transition:.15s}
+.btn:hover{transform:translateY(-1px);filter:brightness(1.06)}.btn:disabled{opacity:.6;cursor:wait}
+.btn-sm{padding:8px 16px;font-size:12.5px;border-radius:10px}
+.btn-plain{background:transparent;border:1px solid var(--line);color:var(--muted);box-shadow:none;font-size:12px;padding:7px 13px;border-radius:999px}
+.btn-plain:hover{color:var(--text);border-color:rgba(255,92,114,0.5)}
+.btn-purple{background:rgba(153,69,255,0.12);border:1px solid rgba(153,69,255,0.3);color:var(--purple);box-shadow:none}
+.btn-purple:hover{background:rgba(153,69,255,0.2)}
+
+.tabs{display:flex;align-items:center;gap:4px;background:rgba(0,0,0,0.35);border:1px solid var(--line);padding:4px;
+  border-radius:13px;margin-bottom:20px;width:fit-content;flex-wrap:wrap}
+.tabs button{border:none;background:transparent;color:var(--muted);cursor:pointer;font-family:'Sora';font-size:13.5px;font-weight:600;
+  padding:9px 22px;border-radius:10px;transition:.15s}
+.tabs button.on{background:linear-gradient(135deg,var(--purple),var(--green));color:#07070b}
+
+.info-badge{display:inline-flex;align-items:center;justify-content:center;width:17px;height:17px;border-radius:50%;
+  border:1px solid rgba(255,255,255,0.18);color:var(--muted);font-size:10px;position:relative;font-family:'JetBrains Mono';cursor:default}
+.info-badge .tip{display:none;position:absolute;bottom:calc(100% + 8px);left:50%;transform:translateX(-50%);background:#0d0d14;
+  border:1px solid var(--line);border-radius:10px;padding:9px 13px;white-space:nowrap;font-size:11px;font-family:'Sora',sans-serif;
+  color:var(--text);z-index:100;box-shadow:0 8px 28px rgba(0,0,0,0.6);line-height:1.5;font-weight:400}
+.info-badge:hover .tip{display:block}
+
+.cal-wrap{display:grid;grid-template-columns:1fr 320px;gap:16px;margin-bottom:16px}
+.cal-nav{display:flex;align-items:center;justify-content:space-between;padding:0 6px;margin-bottom:14px}
+.cal-nav .mn{font-family:'Syne';font-weight:700;font-size:17px}
+.cal-nav button{background:transparent;border:1px solid var(--line);color:var(--text);width:34px;height:34px;border-radius:9px;cursor:pointer;font-size:16px;transition:.15s}
+.cal-nav button:hover{border-color:rgba(153,69,255,0.5);background:rgba(153,69,255,0.08)}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.cal-hdr{font-family:'JetBrains Mono';font-size:10.5px;color:var(--muted);text-align:center;padding:0 0 8px;text-transform:uppercase;letter-spacing:1px}
+.cal-cell{aspect-ratio:1;border-radius:10px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;
+  cursor:pointer;border:1px solid transparent;transition:.12s;position:relative}
+.cal-cell:hover{border-color:rgba(153,69,255,0.4);background:rgba(153,69,255,0.06)}
+.cal-cell.today{border-color:rgba(20,241,149,0.5)}
+.cal-cell.sel{border-color:var(--purple);background:rgba(153,69,255,0.12)}
+.cal-cell .cd{font-family:'JetBrains Mono';font-size:13px;font-weight:600}
+.cal-cell .cdots{display:flex;gap:2px}.cal-cell .cdot{width:5px;height:5px;border-radius:50%}
+.cal-cell.empty-cell{cursor:default}
+.sol-cal .cal-cell{aspect-ratio:unset;min-height:54px;justify-content:flex-start;align-items:flex-start;padding:5px 4px;gap:2px}
+.sol-cal .cd{font-size:9px;font-weight:500;color:var(--muted);line-height:1}
+.sc-sol{font-family:'JetBrains Mono';font-size:10.5px;font-weight:700;line-height:1.2}
+.sc-delta{font-family:'JetBrains Mono';font-size:8.5px;line-height:1}
+.sc-usd{font-family:'JetBrains Mono';font-size:7.5px;color:var(--muted);line-height:1;opacity:.85}
+.cal-cell .c-total{font-family:'JetBrains Mono';font-size:9px;color:var(--green);opacity:.85;line-height:1}
+
+.exp-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.05)}
+.exp-row:last-child{border-bottom:none}
+.exp-cur{font-family:'JetBrains Mono';font-size:11px;font-weight:700;padding:3px 8px;border-radius:6px;flex:none}
+.exp-info{flex:1;min-width:0}
+.exp-info .ea{font-family:'JetBrains Mono';font-weight:700;font-size:14px}
+.exp-info .ed{font-size:12px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.add-exp{display:flex;flex-direction:column;gap:10px;margin-top:12px;padding-top:12px;border-top:1px solid rgba(255,255,255,0.07)}
+.add-exp .row-inp{display:flex;gap:8px}
+.add-exp input,.add-exp select{padding:10px 12px;font-size:13px;border-radius:10px}
+.del{background:transparent;border:1px solid var(--line);color:var(--muted);width:30px;height:30px;border-radius:9px;cursor:pointer;font-size:15px;line-height:1;transition:.15s;flex:none}
+.del:hover{color:var(--red);border-color:rgba(255,92,114,0.5);background:rgba(255,92,114,0.08)}
+
+.chart-card{padding:18px 12px 6px;margin-bottom:16px}
+.chart-head{display:flex;justify-content:space-between;align-items:center;padding:0 8px 6px}
+.chart-title{font-family:'Syne';font-weight:700;font-size:15px}
+.toggle{display:flex;gap:3px;background:rgba(0,0,0,0.35);border:1px solid var(--line);padding:3px;border-radius:10px}
+.toggle button{border:none;background:transparent;color:var(--muted);cursor:pointer;font-family:'JetBrains Mono';font-size:12px;
+  font-weight:500;padding:5px 13px;border-radius:7px;transition:.15s}
+.toggle button.on{background:linear-gradient(135deg,var(--purple),var(--green));color:#07070b;font-weight:700}
+.chart{width:100%;height:200px;display:block}
+
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px}
+.stat{padding:15px 16px}
+.stat .k{font-size:10.5px;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:8px}
+.stat .v{font-family:'JetBrains Mono';font-weight:700;font-size:20px;letter-spacing:-0.5px}
+.stat .v small{font-size:12px;color:var(--muted);font-weight:400}
+
+.pos{color:var(--green)}.neg{color:var(--red)}
+.month-totals{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px;align-items:center}
+.mt-chip{font-family:'JetBrains Mono';font-size:12px;font-weight:600;padding:6px 12px;border-radius:10px;border:1px solid var(--line);background:rgba(0,0,0,0.2)}
+.mt-usd{color:var(--green);border-color:rgba(20,241,149,0.45);background:rgba(20,241,149,0.06);font-size:13px}
+.no-sel{color:var(--muted);font-size:13px;text-align:center;padding:30px 0}
+.day-total{display:flex;align-items:center;justify-content:space-between;padding:10px 0 12px;margin-bottom:10px;border-bottom:1px solid rgba(255,255,255,0.07)}
+.day-total .dt-lbl{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px}
+.day-total .dt-val{font-family:'JetBrains Mono';font-weight:700;font-size:17px;color:var(--green)}
+
+.tbl-month{margin-bottom:10px}
+.tbl-month-hdr{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);
+  border-radius:10px;padding:10px 14px;cursor:pointer;transition:.15s;user-select:none}
+.tbl-month-hdr.open{background:rgba(153,69,255,0.08);border-color:rgba(153,69,255,0.2)}
+.tbl-month-hdr:hover{border-color:rgba(153,69,255,0.3)}
+.tbl-chevron{color:var(--muted);font-size:11px;flex:none}
+.tbl-month-name{font-weight:600;font-size:13px}
+.tbl-month-stats{margin-left:auto;display:flex;gap:14px;font-size:11px;font-family:'JetBrains Mono',monospace;flex-wrap:wrap;align-items:center}
+.tbl-approx{color:var(--muted)}
+.tbl-body{border:1px solid rgba(255,255,255,0.06);border-top:none;border-radius:0 0 10px 10px;overflow:hidden}
+.tbl{width:100%;border-collapse:collapse;font-size:12px}
+.tbl thead tr{background:rgba(0,0,0,0.3)}
+.tbl th{padding:8px 12px;color:var(--muted);font-weight:500;text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:1px}
+.tbl-row{border-top:1px solid rgba(255,255,255,0.04)}
+.tbl-row-gain{background:rgba(20,241,149,0.02)}
+.tbl-row-perte{background:rgba(255,92,114,0.02)}
+.tbl-row-depense{background:rgba(153,69,255,0.02)}
+.tbl td{padding:8px 12px;vertical-align:middle}
+.tbl-date{color:var(--muted);font-size:11px;font-family:'JetBrains Mono',monospace;white-space:nowrap}
+.tbl-badge{font-size:10px;padding:2px 7px;border-radius:4px;font-family:'JetBrains Mono',monospace;white-space:nowrap}
+.tbl-badge-gain{background:rgba(20,241,149,0.1);color:var(--green)}
+.tbl-badge-perte{background:rgba(255,92,114,0.1);color:var(--red)}
+.tbl-badge-depense{background:rgba(153,69,255,0.12);color:var(--purple)}
+.tbl-label{color:var(--text);max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tbl-native,.tbl-usd{text-align:right;font-family:'JetBrains Mono',monospace;white-space:nowrap}
+.tbl-note{color:var(--muted);font-size:10px;text-align:center;margin-top:10px;font-family:'JetBrains Mono',monospace}
+.empty{text-align:center;padding:46px 20px;color:var(--muted)}
+.empty .em-ic{font-size:34px;margin-bottom:12px;opacity:.6}
+.foot{text-align:center;color:var(--muted);font-size:11px;margin-top:18px;font-family:'JetBrains Mono'}
+.toast{color:var(--green);font-size:12.5px;font-family:'JetBrains Mono'}
+.err-msg{color:var(--red);font-size:12.5px;font-family:'JetBrains Mono'}
+.hide{display:none!important}
+@media(max-width:720px){.cal-wrap{grid-template-columns:1fr}.grid{grid-template-columns:repeat(2,1fr)}.balance{text-align:left;width:100%}.balance .big{font-size:32px}}
+</style>
+</head>
+<body>
+
+<!-- ─────────────── LOGIN ─────────────── -->
+<div class="login" id="login">
+  <div class="login-card" id="login-card">
+    <div style="display:flex;flex-direction:column;align-items:center;margin-bottom:32px;gap:14px">
+      <div class="login-logo">◎</div>
+      <div style="text-align:center">
+        <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:22px;color:#ECECF2;letter-spacing:-0.5px">Ewann Portfolio</div>
+        <div style="color:#6E6E80;font-size:12.5px;margin-top:4px">Accès privé · démo</div>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <input class="linput" id="lg-user" placeholder="Identifiant" autocomplete="username" />
+      <input class="linput" id="lg-pwd" type="password" placeholder="Mot de passe" autocomplete="current-password" style="letter-spacing:4px" />
+      <div id="lg-err" style="font-family:'JetBrains Mono',monospace;font-size:11.5px;color:#FF5C72;text-align:center;min-height:14px"></div>
+      <button class="lbtn" id="lg-btn">Entrer</button>
+      <p style="color:#6E6E80;font-size:11px;text-align:center;line-height:1.5">Démo — clique sur <b>Entrer</b>, rien n'est envoyé.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ─────────────── APP ─────────────── -->
+<div class="app" id="app">
+  <div class="wrap">
+    <div class="head">
+      <div class="brand">
+        <div class="logo">◎</div>
+        <div>
+          <h1>Ewann Portfolio</h1>
+          <div class="sub">
+            <span class="live" id="live-chip"><span class="dot"></span>SOL <span id="live-price">$—</span> <span class="ago" id="live-ago"></span></span>
+            <span id="viewer-badge" style="font-family:'JetBrains Mono';font-size:10.5px;color:#9945FF;border:1px solid rgba(153,69,255,0.4);padding:2px 8px;border-radius:999px">vue seule</span>
+            <button class="btn-plain" id="logout">déconnexion</button>
+          </div>
+        </div>
+      </div>
+      <div class="balance" id="balance">
+        <div class="lbl">Solde actuel</div>
+        <div class="big" id="bal-sol">—<small>SOL</small></div>
+        <div class="usd" id="bal-usd"></div>
+        <div class="day-chip pos" id="bal-day"></div>
+      </div>
+    </div>
+
+    <div class="tabs">
+      <button class="on" data-tab="sol"><span style="opacity:.9">◎</span> Solde SOL</button>
+      <div class="info-badge">i<div class="tip">Capital de trading uniquement.<br/>D'autres wallets ne sont pas inclus ici.</div></div>
+      <button data-tab="expenses">📅 Dépenses</button>
+      <button data-tab="tableau">📋 Tableau</button>
+    </div>
+
+    <!-- Onglet SOL -->
+    <div id="tab-sol">
+      <div class="cal-wrap">
+        <div class="card" style="padding:18px">
+          <div class="cal-nav">
+            <button onclick="shiftSolMonth(-1)">‹</button>
+            <div style="display:flex;flex-direction:column;align-items:center;gap:3px">
+              <span class="mn" id="sol-cal-title"></span>
+              <span id="sol-month-stats" style="font-family:'JetBrains Mono';font-size:10px;display:flex;gap:6px"></span>
+            </div>
+            <button onclick="shiftSolMonth(1)">›</button>
+          </div>
+          <div class="cal-grid sol-cal" id="sol-cal-grid"></div>
+        </div>
+        <div class="card side-panel" id="sol-side"></div>
+      </div>
+
+      <div class="card chart-card">
+        <div class="chart-head">
+          <div class="chart-title">Évolution</div>
+          <div class="toggle"><button class="on" data-unit="SOL">SOL</button><button data-unit="USD">$</button></div>
+        </div>
+        <svg class="chart" id="sol-chart" viewBox="0 0 600 200" preserveAspectRatio="none"></svg>
+      </div>
+
+      <div class="grid">
+        <div class="card stat"><div class="k">Variation totale</div><div class="v pos" id="k-total">—</div><div class="muted" id="k-total-usd" style="font-family:'JetBrains Mono';font-size:11px;margin-top:4px"></div></div>
+        <div class="card stat"><div class="k">Duration</div><div class="v" id="k-duration">—</div></div>
+        <div class="card stat"><div class="k">Avg win/day *</div><div class="v pos" id="k-avg">—</div></div>
+      </div>
+      <p class="tbl-note" style="text-align:left">* moyenne par jour calendaire entre la 1ère et la dernière entrée · prix SOL via CoinGecko dans la vraie app</p>
+    </div>
+
+    <!-- Onglet Dépenses -->
+    <div id="tab-expenses" class="hide">
+      <div class="card chart-card">
+        <div class="chart-head"><div class="chart-title">Dépenses mensuelles (USD)</div></div>
+        <svg class="chart" id="exp-chart" viewBox="0 0 600 180" preserveAspectRatio="none"></svg>
+      </div>
+      <div class="month-totals" id="month-totals"></div>
+      <div class="cal-wrap">
+        <div class="card" style="padding:18px">
+          <div class="cal-nav">
+            <button onclick="shiftExpMonth(-1)">‹</button>
+            <span class="mn" id="exp-cal-title"></span>
+            <button onclick="shiftExpMonth(1)">›</button>
+          </div>
+          <div class="cal-grid" id="exp-cal-grid"></div>
+        </div>
+        <div class="card side-panel" id="exp-side"></div>
+      </div>
+    </div>
+
+    <!-- Onglet Tableau -->
+    <div id="tab-tableau" class="hide">
+      <div style="display:flex;justify-content:flex-end;margin-bottom:12px">
+        <button class="btn btn-sm" onclick="exportCsv()">↓ Export CSV</button>
+      </div>
+      <div id="tableau"></div>
+    </div>
+
+    <div class="foot">Ewann Portfolio · démo statique · données fictives · prix SOL via CoinGecko</div>
+  </div>
+</div>
+
+<script>
+/* ═══════════════════════ Données fictives ═══════════════════════ */
+const CURRENCIES = [
+  { id:"SOL",  color:"#9945FF" },
+  { id:"USDC", color:"#2775CA" },
+  { id:"EUR",  color:"#FFD700" },
+  { id:"USD",  color:"#85BB65" },
+];
+const LIVE_PRICE = 164.2; // $ / SOL (fictif, figé)
+const MONTHS_FR = ["Janvier","Février","Mars","Avril","Mai","Juin","Juillet","Août","Septembre","Octobre","Novembre","Décembre"];
+const DAYS_FR = ["Lun","Mar","Mer","Jeu","Ven","Sam","Dim"];
+const pad = n => String(n).padStart(2,"0");
+const dateKey = (y,m,d) => `${y}-${pad(m+1)}-${pad(d)}`;
+const todayStr = () => { const t=new Date(); return dateKey(t.getFullYear(),t.getMonth(),t.getDate()); };
+const fmtSol = n => Number(n).toLocaleString("fr-FR",{minimumFractionDigits:2,maximumFractionDigits:3});
+const fmtUsd = n => { const d=Math.abs(n)>=1000?0:2; return "$"+Number(n).toLocaleString("en-US",{minimumFractionDigits:d,maximumFractionDigits:d}); };
+const fmtPct = n => (n>=0?"+":"")+Number(n).toLocaleString("fr-FR",{minimumFractionDigits:1,maximumFractionDigits:1})+" %";
+const fmtDateShort = iso => { const [,m,d]=iso.split("-"); return `${d}/${m}`; };
+const fmtDateLong = iso => new Date(iso+"T00:00:00").toLocaleDateString("fr-FR",{weekday:"short",day:"numeric",month:"short"});
+const getCalDays = (y,m) => { const first=new Date(y,m,1); let s=first.getDay()-1; if(s<0)s=6;
+  const n=new Date(y,m+1,0).getDate(); const cells=[]; for(let i=0;i<s;i++)cells.push(null);
+  for(let d=1;d<=n;d++)cells.push(d); return cells; };
+
+// ── Entrées de solde SOL (date, solde, prix du jour)
+const Y = new Date().getFullYear();
+const entries = [
+  { date:`${Y}-09-02`, sol: 96.0,  price: 138.5 },
+  { date:`${Y}-09-06`, sol: 101.4, price: 141.2 },
+  { date:`${Y}-09-11`, sol: 99.2,  price: 139.8 },
+  { date:`${Y}-09-16`, sol: 108.6, price: 146.0 },
+  { date:`${Y}-09-21`, sol: 112.0, price: 149.4 },
+  { date:`${Y}-09-27`, sol: 109.3, price: 147.1 },
+  { date:`${Y}-10-02`, sol: 118.5, price: 152.6 },
+  { date:`${Y}-10-05`, sol: 125.0, price: 156.3 },
+  { date:`${Y}-10-07`, sol: 123.9, price: 154.4 },
+  { date:`${Y}-10-09`, sol: 130.7, price: 159.2 },
+  { date:`${Y}-10-11`, sol: 138.2, price: 162.0 },
+  { date:`${Y}-10-12`, sol: 142.8, price: 164.2 },
+];
+// ── Sorties d'argent (dépenses), multi-devises — le point demandé par Ewann
+const expenses = [
+  { id:"e1", date:`${Y}-10-11`, amount: 12,     currency:"USD",  desc:"Abonnement données / API" },
+  { id:"e2", date:`${Y}-10-08`, amount: 40,     currency:"EUR",  desc:"Hébergement VPS" },
+  { id:"e3", date:`${Y}-10-05`, amount: 25,     currency:"USDC", desc:"Frais RPC / priorité tx" },
+  { id:"e4", date:`${Y}-10-03`, amount: 0.15,   currency:"SOL",  desc:"Frais swap DEX" },
+  { id:"e5", date:`${Y}-09-29`, amount: 29,     currency:"EUR",  desc:"Nom de domaine + email pro" },
+  { id:"e6", date:`${Y}-09-24`, amount: 18,     currency:"USD",  desc:"Outil de suivi de portefeuille" },
+  { id:"e7", date:`${Y}-09-17`, amount: 60,     currency:"USDC", desc:"Retrait vers banque (rampe off)" },
+  { id:"e8", date:`${Y}-09-10`, amount: 0.35,   currency:"SOL",  desc:"Frais de priorité réseau" },
+  { id:"e9", date:`${Y}-09-05`, amount: 45,     currency:"EUR",  desc:"Matériel / accessoire" },
+];
+// taux EUR->USD (fictifs, figés) par date pour l'agrégation USD
+const EURUSD = 1.085;
+const toUsd = e => e.currency==="USD"||e.currency==="USDC" ? e.amount
+  : e.currency==="SOL" ? e.amount*LIVE_PRICE : e.currency==="EUR" ? e.amount*EURUSD : null;
+const fmtAmount = (n,cur) => cur==="SOL" ? `${fmtSol(n)} SOL` : cur==="USDC" ? `${Number(n).toFixed(2)} USDC`
+  : cur==="EUR" ? `${Number(n).toLocaleString("fr-FR",{minimumFractionDigits:2,maximumFractionDigits:2})} €` : fmtUsd(n);
+
+/* ═══════════════════════ Navigation ═══════════════════════ */
+const $ = s => document.querySelector(s);
+const $$ = s => [...document.querySelectorAll(s)];
+let me = { role:"owner" };
+function login() {
+  $("#login").style.display = "none";
+  $("#app").classList.add("on");
+  try { localStorage.setItem("trade-auth","1"); } catch {}
+  renderAll();
+}
+function logout() { $("#app").classList.remove("on"); $("#login").style.display="flex"; try{localStorage.removeItem("trade-auth");}catch{} }
+$("#lg-btn").onclick = login;
+$$("#lg-user,#lg-pwd").forEach(i => i.onkeydown = e => { if (e.key==="Enter") login(); });
+$("#logout").onclick = logout;
+
+$$("[data-tab]").forEach(b => b.onclick = () => {
+  $$("[data-tab]").forEach(x => x.classList.toggle("on", x===b));
+  ["sol","expenses","tableau"].forEach(t => $("#tab-"+t).classList.toggle("hide", t!==b.dataset.tab));
+  if (b.dataset.tab!=="sol") $("#balance").style.visibility="hidden"; else $("#balance").style.visibility="visible";
+  if (b.dataset.tab==="tableau") renderTableau();
+});
+
+/* ═══════════════════════ Onglet SOL ═══════════════════════ */
+let solY = Y, solM = 9, solSelDay = null, unit = "SOL";
+function shiftSolMonth(dir) { solM += dir; if (solM<0){solM=11;solY--;} if (solM>11){solM=0;solY++;} solSelDay=null; renderSol(); }
+$$("[data-unit]").forEach(b => b.onclick = () => { unit=b.dataset.unit; $$("[data-unit]").forEach(x=>x.classList.toggle("on",x===b)); renderSol(); });
+
+const entryByDate = () => Object.fromEntries(entries.map(e => [e.date, e]));
+function stats() {
+  if (entries.length===0) return null;
+  const last = entries.at(-1);
+  const series = entries.map(e => ({ date:e.date, v: unit==="USD" ? e.sol*LIVE_PRICE : e.sol }));
+  const first = series[0].v, lastV = series.at(-1).v, prev = series.at(-2)?.v;
+  const totalChange = lastV - first, totalPct = first? (totalChange/first)*100 : 0;
+  const dayChange = prev!=null ? lastV-prev : null, dayPct = prev ? (dayChange/prev)*100 : null;
+  const calDays = Math.max(1,(new Date(last.date)-new Date(entries[0].date))/86400000);
+  return { last, sol:last.sol, totalChange, totalPct, dayChange, dayPct, calDays,
+    avgPerDay: totalChange/calDays, usdNow: last.sol*LIVE_PRICE, up: totalChange>=0 };
+}
+function renderSol() {
+  const st = stats();
+  $("#bal-sol").innerHTML = `${fmtSol(st.sol)}<small>SOL</small>`;
+  $("#bal-usd").textContent = `≈ ${fmtUsd(st.usdNow)}`;
+  $("#bal-day").className = "day-chip " + (st.dayChange>=0?"pos":"neg");
+  $("#bal-day").innerHTML = `${st.dayChange>=0?"▲":"▼"} ${unit==="USD"?fmtUsd(Math.abs(st.dayChange)):fmtSol(Math.abs(st.dayChange))+" SOL"}
+    ${st.dayPct!=null?`<span>(${fmtPct(st.dayPct)})</span>`:""} <span style="color:var(--muted)">vs veille</span>`;
+
+  // KPIs
+  $("#k-total").className = "v " + (st.totalChange>=0?"pos":"neg");
+  $("#k-total").textContent = (st.totalChange>=0?"+":"−") + (unit==="USD"?fmtUsd(Math.abs(st.totalChange)):fmtSol(Math.abs(st.totalChange))+" SOL");
+  $("#k-total-usd").textContent = unit==="SOL" ? `${st.totalChange>=0?"+":"−"}${fmtUsd(Math.abs(st.totalChange*LIVE_PRICE))}` : "";
+  $("#k-duration").innerHTML = `${Math.round(st.calDays)}<small> jours</small>`;
+  $("#k-avg").className = "v " + (st.avgPerDay>=0?"pos":"neg");
+  $("#k-avg").textContent = (st.avgPerDay>=0?"+":"−") + (unit==="USD"?fmtUsd(Math.abs(st.avgPerDay)):fmtSol(Math.abs(st.avgPerDay))+" SOL");
+
+  // calendrier
+  $("#sol-cal-title").textContent = `${MONTHS_FR[solM]} ${solY}`;
+  const ebd = entryByDate();
+  const prefix = `${solY}-${pad(solM+1)}`;
+  let wins=0, losses=0, winAmt=0, lossAmt=0;
+  entries.filter(e=>e.date.startsWith(prefix)).forEach(e => {
+    const idx = entries.findIndex(x=>x.date===e.date); const prev = idx>0?entries[idx-1]:null;
+    if (!prev) return; const d = e.sol-prev.sol;
+    if (d>0){wins++;winAmt+=d;} else if(d<0){losses++;lossAmt+=Math.abs(d);}
+  });
+  $("#sol-month-stats").innerHTML = (wins||losses)
+    ? `${wins?`<span class="pos">W${wins}: +${fmtSol(winAmt)}</span>`:""}${wins&&losses?`<span style="color:var(--muted)">·</span>`:""}${losses?`<span class="neg">L${losses}: −${fmtSol(lossAmt)}</span>`:""}` : "";
+
+  $("#sol-cal-grid").innerHTML = DAYS_FR.map(d=>`<div class="cal-hdr">${d}</div>`).join("") +
+    getCalDays(solY,solM).map((d,i) => {
+      if (d===null) return `<div class="cal-cell empty-cell"></div>`;
+      const dk = dateKey(solY,solM,d), entry = ebd[dk];
+      const idx = entry ? entries.findIndex(e=>e.date===dk) : -1;
+      const prev = idx>0 ? entries[idx-1] : null;
+      const delta = entry&&prev ? entry.sol-prev.sol : null;
+      return `<div class="cal-cell ${dk===todayStr()?"today":""} ${d===solSelDay?"sel":""}" onclick="pickSolDay(${d})">
+        <span class="cd">${d}</span>
+        ${entry?`<span class="sc-sol">${fmtSol(entry.sol)}</span>`:""}
+        ${entry?`<span class="sc-usd">${fmtUsd(entry.sol*LIVE_PRICE)}</span>`:""}
+        ${delta!=null?`<span class="sc-delta ${delta>=0?"pos":"neg"}">${delta>=0?"+":"−"}${fmtSol(Math.abs(delta))}</span>`:""}
+      </div>`;
+    }).join("");
+
+  renderSolSide(ebd);
+  renderSolChart();
+}
+function pickSolDay(d) { solSelDay = (d===solSelDay)?null:d; renderSol(); }
+function renderSolSide(ebd) {
+  const box = $("#sol-side");
+  if (!solSelDay) { box.innerHTML = `<div class="no-sel">← Clique sur un jour pour saisir le solde</div>`; return; }
+  const dk = dateKey(solY,solM,solSelDay), e = ebd[dk];
+  const idx = e ? entries.findIndex(x=>x.date===dk) : -1, prev = idx>0?entries[idx-1]:null;
+  const delta = e&&prev ? e.sol-prev.sol : null;
+  box.innerHTML = `<h3>${fmtDateLong(dk)}</h3>
+    ${e?`<div class="day-total" style="margin-top:8px"><span class="dt-lbl">Solde actuel</span><span class="dt-val">${fmtSol(e.sol)} SOL</span></div>
+      <div style="font-family:'JetBrains Mono';font-size:12px;color:var(--muted);margin-bottom:8px">≈ ${fmtUsd(e.sol*LIVE_PRICE)}
+        <span style="font-size:10px;margin-left:6px">@ ${fmtUsd(LIVE_PRICE)}/SOL live</span></div>
+      ${delta!=null?`<div class="day-chip ${delta>=0?"pos":"neg"}" style="font-size:11px">${delta>=0?"▲":"▼"} ${fmtSol(Math.abs(delta))} SOL
+        <span style="color:var(--muted);font-size:10px;margin-left:5px">≈ ${fmtUsd(Math.abs(delta)*LIVE_PRICE)}</span>
+        <span style="color:var(--muted)">vs ${fmtDateShort(prev.date)}</span></div>`:""}`:""}
+    <div class="add-exp" style="margin-top:${e?0:12}px">
+      <div style="font-size:10px;color:var(--muted);font-family:'JetBrains Mono';text-transform:uppercase;letter-spacing:1.2px">${e?"Modifier le solde":"Solde à la fin du jour"}</div>
+      <div class="row-inp">
+        <input type="number" step="0.001" id="sol-input" placeholder="ex. 12.45" value="${e?e.sol:""}" style="flex:1" />
+        <span style="font-family:'JetBrains Mono';font-size:12px;color:var(--muted);align-self:center;padding-left:6px">SOL</span>
+      </div>
+      <div id="sol-msg" style="font-size:11px;font-family:'JetBrains Mono';min-height:14px"></div>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-sm" style="flex:1" onclick="saveSolEntry()">${e?"Mettre à jour":"Enregistrer"}</button>
+        ${e?`<button class="btn btn-sm" style="background:transparent;border:1px solid rgba(255,92,114,0.4);color:#FF5C72;box-shadow:none" onclick="delEntry('${dk}')">×</button>`:""}
+      </div>
+    </div>`;
+}
+function saveSolEntry() {
+  const dk = dateKey(solY,solM,solSelDay);
+  const val = parseFloat($("#sol-input").value.replace(",","."));
+  const msg = $("#sol-msg");
+  if (isNaN(val)||val<0) { msg.className="err-msg"; msg.textContent="Montant invalide."; return; }
+  const idx = entries.findIndex(e=>e.date===dk);
+  if (idx>=0) entries[idx].sol = val; else { entries.push({date:dk, sol:val, price:LIVE_PRICE});
+    entries.sort((a,b)=>a.date.localeCompare(b.date)); }
+  msg.className="toast"; msg.textContent = idx>=0 ? "✓ Mis à jour" : "✓ Ajouté";
+  renderSol();
+}
+function delEntry(dk) { const i = entries.findIndex(e=>e.date===dk); if(i>=0) entries.splice(i,1); solSelDay=null; renderSol(); }
+
+function renderSolChart() {
+  const el = $("#sol-chart");
+  const vals = entries.map(e => unit==="USD" ? e.sol*LIVE_PRICE : e.sol);
+  const W=600,H=200,p=14;
+  const min=Math.min(...vals), max=Math.max(...vals), range=(max-min)||1;
+  const step=(W-p*2)/(vals.length-1);
+  const pts=vals.map((v,i)=>[p+i*step, H-p-((v-min)/range)*(H-p*2)]);
+  const line=pts.map((q,i)=>(i?"L":"M")+q[0].toFixed(1)+" "+q[1].toFixed(1)).join(" ");
+  const area=line+` L ${pts.at(-1)[0].toFixed(1)} ${H} L ${pts[0][0].toFixed(1)} ${H} Z`;
+  const up = stats().up, color = up ? "#14F195" : "#FF5C72";
+  el.innerHTML = `<defs><linearGradient id="fill" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="${color}" stop-opacity="0.32"/><stop offset="100%" stop-color="${color}" stop-opacity="0"/></linearGradient>
+    <linearGradient id="stroke" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#9945FF"/><stop offset="100%" stop-color="${color}"/></linearGradient></defs>
+    ${[0.25,0.5,0.75].map(f=>`<line x1="0" x2="${W}" y1="${(H*f).toFixed(0)}" y2="${(H*f).toFixed(0)}" stroke="rgba(255,255,255,0.05)"/>`).join("")}
+    <path d="${area}" fill="url(#fill)"/><path d="${line}" fill="none" stroke="url(#stroke)" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+    ${pts.map((q,i)=>`<circle cx="${q[0].toFixed(1)}" cy="${q[1].toFixed(1)}" r="2.6" fill="${color}"/>`).join("")}
+    <circle cx="${pts.at(-1)[0].toFixed(1)}" cy="${pts.at(-1)[1].toFixed(1)}" r="5" fill="#fff" stroke="${color}" stroke-width="2"/>`;
+}
+
+/* ═══════════════════════ Onglet DÉPENSES ═══════════════════════ */
+let expY = Y, expM = 9, expSelDay = null, expCur = "USDC";
+function shiftExpMonth(dir) { expM += dir; if(expM<0){expM=11;expY--;} if(expM>11){expM=0;expY++;} expSelDay=null; renderExpenses(); }
+function expByDate() { const m={}; expenses.forEach(e=>{(m[e.date] ||= []).push(e);}); return m; }
+function renderExpenses() {
+  $("#exp-cal-title").textContent = `${MONTHS_FR[expM]} ${expY}`;
+  const ebd = expByDate();
+  $("#exp-cal-grid").innerHTML = DAYS_FR.map(d=>`<div class="cal-hdr">${d}</div>`).join("") +
+    getCalDays(expY,expM).map(d => {
+      if (d===null) return `<div class="cal-cell empty-cell"></div>`;
+      const dk = dateKey(expY,expM,d), list = ebd[dk]||[];
+      const curs = [...new Set(list.map(e=>e.currency))];
+      const total = list.length ? list.reduce((a,e)=>a+toUsd(e),0) : null;
+      return `<div class="cal-cell ${dk===todayStr()?"today":""} ${d===expSelDay?"sel":""}" onclick="pickExpDay(${d})">
+        <span class="cd">${d}</span>
+        ${curs.length?`<div class="cdots">${curs.map(c=>`<span class="cdot" style="background:${CURRENCIES.find(x=>x.id===c).color}"></span>`).join("")}</div>`:""}
+        ${total!=null?`<span class="c-total">${fmtUsd(total)}</span>`:""}
+      </div>`;
+    }).join("");
+
+  // totaux du mois
+  const prefix = `${expY}-${pad(expM+1)}`;
+  const mExp = expenses.filter(e=>e.date.startsWith(prefix));
+  const byCur = {}; mExp.forEach(e=>byCur[e.currency]=(byCur[e.currency]||0)+e.amount);
+  const totalUsd = mExp.reduce((a,e)=>a+toUsd(e),0);
+  const tot = $("#month-totals");
+  tot.innerHTML = mExp.length ? `<span style="font-family:'JetBrains Mono';font-size:11px;color:var(--muted);margin-right:4px">TOTAL MOIS :</span>` +
+    Object.entries(byCur).map(([c,v])=>`<span class="mt-chip" style="border-color:${CURRENCIES.find(x=>x.id===c).color}55">${fmtAmount(v,c)}</span>`).join("") +
+    `<span class="mt-chip mt-usd">≈ ${fmtUsd(totalUsd)}</span>` : "";
+
+  renderExpSide(ebd);
+  renderExpChart();
+}
+function pickExpDay(d) { expSelDay = (d===expSelDay)?null:d; renderExpenses(); }
+function renderExpSide(ebd) {
+  const box = $("#exp-side");
+  if (!expSelDay) { box.innerHTML = `<div class="no-sel">← Clique sur un jour pour voir ou ajouter des dépenses</div>`; return; }
+  const dk = dateKey(expY,expM,expSelDay), list = ebd[dk]||[];
+  const totalUsd = list.length ? list.reduce((a,e)=>a+toUsd(e),0) : null;
+  box.innerHTML = `<h3>${fmtDateLong(dk)}</h3>
+    ${list.length?`<div class="day-total"><span class="dt-lbl">Total du jour</span><span class="dt-val">${fmtUsd(totalUsd)}</span></div>`
+      :`<div class="no-sel" style="padding:16px 0">Aucune dépense ce jour</div>`}
+    ${list.map(e=>`<div class="exp-row">
+      <span class="exp-cur" style="background:${CURRENCIES.find(x=>x.id===e.currency).color}22;color:${CURRENCIES.find(x=>x.id===e.currency).color}">${e.currency}</span>
+      <div class="exp-info"><div class="ea">${fmtAmount(e.amount,e.currency)}</div>${e.desc?`<div class="ed">${e.desc}</div>`:""}</div>
+      <button class="del" onclick="delExpense('${e.id}')">×</button></div>`).join("")}
+    <div class="add-exp">
+      <div class="row-inp">
+        <input type="number" step="0.01" id="exp-amt" placeholder="Montant" style="flex:1" />
+        <select id="exp-cur-sel" style="width:100px">${CURRENCIES.map(c=>`<option ${c.id===expCur?"selected":""}>${c.id}</option>`).join("")}</select>
+      </div>
+      <input id="exp-desc" placeholder="Description (optionnel)" />
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-sm" style="flex:1" onclick="addExpense()">+ Ajouter</button>
+        <button class="btn btn-sm btn-purple" onclick="fakeReceipt()" title="Import de reçu — simulé">📎 Reçu</button>
+      </div>
+      <div id="exp-msg" style="font-size:11px;font-family:'JetBrains Mono';min-height:14px"></div>
+      <p style="font-size:10px;color:var(--muted)">📎 = la vraie app lit le reçu (photo/PDF) par OCR IA et remplit montant, devise et date.</p>
+    </div>`;
+}
+function addExpense() {
+  const amt = parseFloat($("#exp-amt").value.replace(",","."));
+  const cur = $("#exp-cur-sel").value, desc = $("#exp-desc").value.trim();
+  const msg = $("#exp-msg");
+  if (isNaN(amt)||amt<=0) { msg.className="err-msg"; msg.textContent="Montant invalide."; return; }
+  expenses.push({ id:"x"+Date.now(), date:dateKey(expY,expM,expSelDay), amount:amt, currency:cur, desc });
+  renderExpenses();
+  const m = $("#exp-msg"); if (m){ m.className="toast"; m.textContent="✓ Dépense ajoutée"; }
+}
+function fakeReceipt() {
+  // Simule l'import d'un reçu OCR : remplit les champs avec des valeurs plausibles.
+  const samples = [
+    { amount:23.90, currency:"EUR", desc:"Courses — reçu scanné" },
+    { amount:15.00, currency:"USD", desc:"Abonnement — reçu scanné" },
+    { amount:38.50, currency:"USDC", desc:"Frais plateforme — reçu scanné" },
+  ];
+  const s = samples[Math.floor(Math.random()*samples.length)];
+  if ($("#exp-amt")) $("#exp-amt").value = s.amount;
+  if ($("#exp-cur-sel")) $("#exp-cur-sel").value = s.currency;
+  if ($("#exp-desc")) $("#exp-desc").value = s.desc;
+  const msg = $("#exp-msg"); if (msg){ msg.className="toast"; msg.textContent="📎 Reçu analysé — vérifie puis + Ajouter"; }
+}
+function delExpense(id) { const i=expenses.findIndex(e=>e.id===id); if(i>=0) expenses.splice(i,1); renderExpenses(); }
+
+function renderExpChart() {
+  // Barres empilées par mois et par devise (USD)
+  const byMonth = {};
+  expenses.forEach(e => { const k=e.date.slice(0,7); (byMonth[k] ||= []).push(e); });
+  const months = Object.keys(byMonth).sort();
+  if (!months.length) { $("#exp-chart").innerHTML = `<div class="empty"><div class="em-ic">📋</div><p>Aucune dépense</p></div>`; return; }
+  const data = months.map(k => {
+    const row = { label: MONTHS_FR[parseInt(k.slice(5,7))-1].slice(0,3) };
+    byMonth[k].forEach(e => row[e.currency] = (row[e.currency]||0) + toUsd(e));
+    return row;
+  });
+  const W=600,H=180,p=28, maxTot = Math.max(...data.map(r=>CURRENCIES.reduce((a,c)=>a+(r[c.id]||0),0)))*1.1||1;
+  const bw = Math.min(70,(W-p*2)/data.length*0.5), gap=(W-p*2)/data.length;
+  let svg = [0.25,0.5,0.75].map(f=>`<line x1="${p}" x2="${W-p}" y1="${(p+(H-p*2)*f).toFixed(0)}" y2="${(p+(H-p*2)*f).toFixed(0)}" stroke="rgba(255,255,255,0.05)"/>`).join("");
+  data.forEach((row,i) => {
+    const x = p + gap*i + (gap-bw)/2; let y = H-p;
+    CURRENCIES.forEach(c => {
+      const v = row[c.id]||0; if (!v) return;
+      const h = (v/maxTot)*(H-p*2); y -= h;
+      svg += `<rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${bw.toFixed(1)}" height="${h.toFixed(1)}" fill="${c.color}" rx="2"/>`;
+    });
+    svg += `<text x="${(x+bw/2).toFixed(1)}" y="${H-8}" text-anchor="middle" fill="#6E6E80" font-size="11" font-family="JetBrains Mono">${row.label}</text>`;
+    svg += `<text x="${(x+bw/2).toFixed(1)}" y="${(y-6).toFixed(1)}" text-anchor="middle" fill="#14F195" font-size="11" font-family="JetBrains Mono">${fmtUsd(CURRENCIES.reduce((a,c)=>a+(row[c.id]||0),0))}</text>`;
+  });
+  svg += CURRENCIES.map((c,i)=>`<circle cx="${W-p-120+ (i%2)*58}" cy="${14+Math.floor(i/2)*15}" r="5" fill="${c.color}"/><text x="${W-p-110+(i%2)*58}" y="${18+Math.floor(i/2)*15}" fill="#6E6E80" font-size="10" font-family="JetBrains Mono">${c.id}</text>`).join("");
+  $("#exp-chart").innerHTML = svg;
+}
+
+/* ═══════════════════════ Onglet TABLEAU ═══════════════════════ */
+function allRows() {
+  const rows = [];
+  for (let i=1;i<entries.length;i++) {
+    const delta = entries[i].sol - entries[i-1].sol; if (delta===0) continue;
+    rows.push({ date:entries[i].date, type: delta>0?"gain":"perte",
+      label: `${delta>0?"+":""}${fmtSol(delta)} SOL`, nativeAmount:Math.abs(delta),
+      nativeCurrency:"SOL", usdValue: delta*LIVE_PRICE });
+  }
+  expenses.forEach(e => rows.push({ date:e.date, type:"depense", label:e.desc||"—",
+    nativeAmount:e.amount, nativeCurrency:e.currency, usdValue:-toUsd(e) }));
+  return rows.sort((a,b)=>b.date.localeCompare(a.date));
+}
+function renderTableau() {
+  const rows = allRows();
+  const byMonth = {};
+  rows.forEach(r => (byMonth[r.date.slice(0,7)] ||= []).push(r));
+  const months = Object.keys(byMonth).sort().reverse();
+  const box = $("#tableau");
+  if (!months.length) { box.innerHTML = `<div class="card empty"><div class="em-ic">📋</div><p>Aucune donnée à afficher</p></div>`; return; }
+  box.innerHTML = months.map(k => {
+    const list = byMonth[k];
+    let gainSol=0, gainUsd=0, expUsd=0;
+    list.forEach(r => { if (r.type==="depense") expUsd += Math.abs(r.usdValue); else { gainSol += r.type==="gain"?r.nativeAmount:-r.nativeAmount; gainUsd += r.usdValue; } });
+    const net = gainUsd - expUsd;
+    const [y,m] = k.split("-");
+    return `<div class="tbl-month">
+      <div class="tbl-month-hdr open" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('hide')">
+        <span class="tbl-chevron">▼</span><span class="tbl-month-name">${MONTHS_FR[parseInt(m)-1]} ${y}</span>
+        <div class="tbl-month-stats">
+          ${gainSol!==0?`<span class="${gainSol>0?"pos":"neg"}">${gainSol>0?"+":"−"}${fmtSol(Math.abs(gainSol))} SOL<span class="tbl-approx"> (~${gainUsd>=0?"+":"−"}${fmtUsd(Math.abs(gainUsd))})</span></span>`:""}
+          ${expUsd>0?`<span style="color:#9945FF">−${fmtUsd(expUsd)} dép.</span>`:""}
+          <span class="tbl-net ${net>=0?"pos":"neg"}">Net: ${net>=0?"+":"−"}${fmtUsd(Math.abs(net))}</span>
+        </div>
+      </div>
+      <div class="tbl-body">
+        <table class="tbl"><thead><tr><th>Date</th><th>Type</th><th>Description</th><th style="text-align:right">Montant natif</th><th style="text-align:right">Valeur USD</th></tr></thead>
+        <tbody>
+        ${list.map(r=>`<tr class="tbl-row tbl-row-${r.type}">
+          <td class="tbl-date">${fmtDateShort(r.date)}</td>
+          <td><span class="tbl-badge tbl-badge-${r.type}">${r.type==="gain"?"▲ Gain":r.type==="perte"?"▼ Perte":"■ Dép."}</span></td>
+          <td class="tbl-label">${r.label}</td>
+          <td class="tbl-native">${r.type!=="depense"
+            ? `<span class="${r.type==="gain"?"pos":"neg"}">${r.type==="gain"?"+":"−"}◎${fmtSol(r.nativeAmount)}</span>`
+            : fmtAmount(r.nativeAmount,r.nativeCurrency)}</td>
+          <td class="tbl-usd"><span class="${r.usdValue>=0?"pos":"neg"}">${r.usdValue>=0?"+":"−"}${fmtUsd(Math.abs(r.usdValue))}</span></td>
+        </tr>`).join("")}
+        </tbody></table>
+      </div></div>`;
+  }).join("") + `<p class="tbl-note">* Valeurs USD : prix live SOL · taux du jour pour EUR</p>`;
+}
+function exportCsv() {
+  const rows = allRows();
+  const lines = ["Date,Type,Description,Montant,Devise,Valeur USD",
+    ...rows.map(r => `${r.date},"${r.type==="gain"?"Gain SOL":r.type==="perte"?"Perte SOL":"Dépense"}","${r.label}",${r.nativeAmount},${r.nativeCurrency},${r.usdValue.toFixed(2)}`)];
+  const blob = new Blob([lines.join("\n")], { type:"text/csv" });
+  const a = Object.assign(document.createElement("a"), { href:URL.createObjectURL(blob), download:`portfolio-${todayStr()}.csv` });
+  a.click(); URL.revokeObjectURL(a.href);
+}
+
+/* ═══════════════════════ Boot ═══════════════════════ */
+function renderAll() { renderSol(); renderExpenses(); }
+$("#live-price").textContent = fmtUsd(LIVE_PRICE);
+$("#live-ago").textContent = "· now";
+if (location.hash !== "#noauth") login();
+</script>
+</body>
+</html>
