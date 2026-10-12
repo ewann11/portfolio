@@ -33,28 +33,6 @@ du solde jour par jour, courbe d'évolution, KPI variation/duration/avg win),
 totaux par devise, import de reçu OCR simulé), *Tableau* (journal mensuel
 gain/perte/dépense + **export CSV réel**).
 
-## Publier sur GitHub Pages
-
-1. Créer un dépôt (ex. `portfolio`) et pousser ces fichiers à la racine :
-   ```bash
-   git init
-   git add index.html sante trading .nojekyll
-   git commit -m "Portfolio"
-   git branch -M main
-   git remote add origin git@github.com:<user>/portfolio.git
-   git push -u origin main
-   ```
-2. Sur GitHub : **Settings → Pages → Source: Deploy from a branch → Branch: main / (root)**.
-3. Le site sera en ligne sur `https://<user>.github.io/portfolio/`.
-
-## Personnalisation
-
-- **Accueil** : tout le contenu est dans `index.html` (titre, texte, cartes).
-- **Santé** : données fictives dans `sante/app.js` (objet `STATE` au début du fichier).
-- **Trading** : données fictives dans le `<script>` de `trading/index.html`
-  (tableaux `entries` et `expenses`).
-- Les couleurs sont centralisées dans les variables CSS `:root`.
-
 ---
 
 *Projets réels : React + Node/Express + SQLite (dashboards privés). Ces pages sont des copies anonymisées avec données fictives.*
