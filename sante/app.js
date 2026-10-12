@@ -387,16 +387,12 @@ const COACH_DEMO = {
   study: "Passe en Pomodoro 25/5 : 4 blocs le matin sur les dérivées (matière la plus dure quand le cerveau est frais), puis révision espacée à J+1, J+3, J+7. Termine par un test actif de 10 min sans notes, c'est ce qui ancre la mémoire.",
 };
 let chatHistory = [];
-function openChat() { $("#chatpanel").classList.add("on"); $("#chat-backdrop").classList.add("on"); renderChips(); }
+function openChat() { $("#chatpanel").classList.add("on"); $("#chat-backdrop").classList.add("on"); }
 function closeChat() { $("#chatpanel").classList.remove("on"); $("#chat-backdrop").classList.remove("on"); }
 $("#open-chat-top").onclick = openChat;
 $("#chat-send").onclick = sendChat;
 $("#chat-input").onkeydown = e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendChat(); } };
 
-function renderChips() {
-  $("#chat-chips").innerHTML = Object.entries(COACHES).map(([k, c]) =>
-    `<button class="chip" onclick="askCoach('${k}')">${c.icon} ${c.label.split(" ").slice(1).join(" ")}</button>`).join("");
-}
 function pushMsg(role, text, logs) {
   const box = $("#chat-body");
   if ($("#chat-body .muted")) $("#chat-body").innerHTML = "";
@@ -405,34 +401,28 @@ function pushMsg(role, text, logs) {
   div.innerHTML = (logs ? `<div class="logs">${logs}</div>` : "") + text;
   box.appendChild(div); box.scrollTop = box.scrollHeight;
 }
-function askCoach(key) {
-  const q = { gym: "Comment améliorer ma séance push ?", sleep: "Comment améliorer mon sommeil ?",
-    nutrition: "Il me manque des calories, quoi ajouter ?", study: "Comment réviser efficacement ?" }[key];
-  sendChat(q, key);
-}
-function sendChat(presetText, coachKey) {
+function sendChat() {
   const input = $("#chat-input");
-  const text = presetText || input.value.trim();
+  const text = input.value.trim();
   if (!text) return;
   pushMsg("user", text);
-  if (!presetText) input.value = "";
+  input.value = "";
 
-  // routage : si un coach est passé, sinon on devine par mots-clés (comme le vrai majordome)
-  let key = coachKey;
-  if (!key) {
-    const t = text.toLowerCase();
-    if (/sommeil|dormir|nuit|coucher|réveil/.test(t)) key = "sleep";
-    else if (/manger|repas|kcal|protéine|calorie|nutrition/.test(t)) key = "nutrition";
-    else if (/révis|étud|exam|pomodoro|cours/.test(t)) key = "study";
-    else if (/muscu|séance|gym|sport|push|pull|legs|poids/.test(t)) key = "gym";
-  }
+  // Routage automatique : un seul majordome qui délègue au bon coach (comme les tool calls de l'app réelle).
+  const t = text.toLowerCase();
+  let key = null;
+  if (/sommeil|dormir|nuit|coucher|réveil|fatigue|sieste/.test(t)) key = "sleep";
+  else if (/manger|repas|kcal|protéine|calorie|nutrition|macro|poids|régime/.test(t)) key = "nutrition";
+  else if (/révis|étud|exam|pomodoro|cours|bts|slam|école/.test(t)) key = "study";
+  else if (/muscu|séance|gym|sport|push|pull|legs|entraîn/.test(t)) key = "gym";
+
   if (key) {
     const c = COACHES[key];
-    setTimeout(() => pushMsg("assistant", COACH_DEMO[key],
-      `${c.label} → <b>consultation</b> · mémoire du coach (profil + notes)`), 260);
+    const log = `${c.label} → <b>consultation</b> <span style="opacity:.7">· mémoire du coach (profil + notes)</span>`;
+    setTimeout(() => pushMsg("assistant", COACH_DEMO[key], log), 320);
   } else {
     setTimeout(() => pushMsg("assistant",
-      "Je peux te brancher sur un coach spécialisé : 🏋️ gym, 🌙 sommeil, 🥗 nutrition ou 📚 études. Dis-moi juste le sujet, ou tape une puce en bas."), 260);
+      "Je m'occupe de tout : sport, sommeil, nutrition et études. Dis-moi simplement ce qui te préoccupe, je consulte le coach concerné si besoin."), 320);
   }
 }
 

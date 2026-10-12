@@ -24,8 +24,9 @@ Chaque démo a un bouton **← Retour au portfolio** vers la page d'accueil.
 **Santé** (`sante/`) — shell 5 onglets : Accueil (countdowns, agenda, tâches),
 Calendrier (vue semaine/mois), Santé (snapshot, workout, sommeil, nutrition),
 Études (Pomodoro fonctionnel, plan de révisions), Réglages. Un panneau
-**Majordome** ouvre un chat avec 4 coachs IA (gym, sommeil, nutrition, études)
-et route la question vers le bon coach.
+**Majordome** ouvre un chat : une seule IA qui répond à tous les domaines
+(sport, sommeil, nutrition, études) et délègue à un coach spécialisé quand
+c'est pertinent, avec la trace de la consultation.
 
 **Trading** (`trading/`) — login, 3 onglets : *Solde SOL* (calendrier de saisie
 du solde jour par jour, courbe d'évolution, KPI variation/duration/avg win),
