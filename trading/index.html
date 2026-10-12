@@ -15,9 +15,14 @@
 html,body{min-height:100%}
 body{color:var(--text);font-family:'Sora',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
 /* ---------- Login ---------- */
-.login{min-height:100vh;display:flex;align-items:center;justify-content:center;
+.login{min-height:100vh;display:flex;align-items:center;justify-content:center;position:relative;
   background:radial-gradient(900px 500px at 70% 10%,rgba(153,69,255,0.15),transparent 60%),
              radial-gradient(700px 400px at 10% 90%,rgba(20,241,149,0.1),transparent 55%),#07070b}
+.login-back{position:absolute;top:20px;left:20px;z-index:5}
+.backlink{display:inline-flex;align-items:center;gap:6px;text-decoration:none;color:var(--muted);
+  font-size:12.5px;font-weight:500;border:1px solid var(--line);background:var(--glass);
+  padding:6px 12px;border-radius:10px;transition:.15s;white-space:nowrap;font-family:'Sora',sans-serif}
+.backlink:hover{color:var(--text);background:var(--glass2);border-color:rgba(153,69,255,.5)}
 .login-card{width:100%;max-width:360px;padding:40px;background:rgba(255,255,255,0.025);
   border:1px solid rgba(255,255,255,0.07);border-radius:24px;backdrop-filter:blur(12px);animation:fade .45s ease}
 @keyframes fade{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
@@ -190,6 +195,7 @@ input[type=date]{color-scheme:dark}select{color-scheme:dark;cursor:pointer}
 
 <!-- ─────────────── LOGIN ─────────────── -->
 <div class="login" id="login">
+  <a class="backlink login-back" href="../index.html" title="Retour au portfolio">← Portfolio</a>
   <div class="login-card" id="login-card">
     <div style="display:flex;flex-direction:column;align-items:center;margin-bottom:32px;gap:14px">
       <div class="login-logo">◎</div>
@@ -217,6 +223,7 @@ input[type=date]{color-scheme:dark}select{color-scheme:dark;cursor:pointer}
         <div>
           <h1>Ewann Portfolio</h1>
           <div class="sub">
+            <a class="backlink" href="../index.html" title="Retour au portfolio">← Portfolio</a>
             <span class="live" id="live-chip"><span class="dot"></span>SOL <span id="live-price">$—</span> <span class="ago" id="live-ago"></span></span>
             <span id="viewer-badge" style="font-family:'JetBrains Mono';font-size:10.5px;color:#9945FF;border:1px solid rgba(153,69,255,0.4);padding:2px 8px;border-radius:999px">vue seule</span>
             <button class="btn-plain" id="logout">déconnexion</button>

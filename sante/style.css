@@ -75,6 +75,10 @@ a{color:inherit}
   background:rgba(6,7,10,0.6);border-bottom:1px solid var(--line);padding:11px 16px;display:flex;align-items:center;justify-content:space-between}
 .hdr .greet{font-size:13px;font-weight:600;color:var(--muted)}
 .hdr .acts{display:flex;align-items:center;gap:4px}
+.backlink{display:inline-flex;align-items:center;gap:6px;text-decoration:none;color:var(--muted);
+  font-size:12px;font-weight:500;border:1px solid var(--line);background:var(--glass);
+  padding:5px 11px;border-radius:10px;transition:.15s;white-space:nowrap;flex:none}
+.backlink:hover{color:var(--text);background:var(--glassbright);border-color:rgba(255,255,255,.16)}
 .iconbtn{background:transparent;border:none;color:rgba(236,236,242,.7);cursor:pointer;font-size:18px;padding:5px 7px;border-radius:10px;transition:.15s;font-family:inherit}
 .iconbtn:hover{color:var(--text);background:rgba(255,255,255,.06)}
 
